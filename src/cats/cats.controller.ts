@@ -1,17 +1,16 @@
 import { Controller, Get } from '@nestjs/common';
-import { AppService } from './app.service';
+import { CatsService } from './cats.service';
 import { ConfigService } from '@nestjs/config';
 
-@Controller()
-export class AppController {
+@Controller('cats')
+export class CatsController {
   constructor(
-    private readonly appService: AppService,
+    private readonly catsService: CatsService,
     private readonly configService: ConfigService,
   ) {}
-
   @Get()
-  getHello(): string {
+  getCats(): string {
     console.log(this.configService.get('DATABASE_USER'));
-    return this.appService.getHello();
+    return this.catsService.getCats();
   }
 }
