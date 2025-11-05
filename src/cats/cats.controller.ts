@@ -1,16 +1,74 @@
-import { Controller, Get } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  ParseIntPipe,
+  Query,
+} from '@nestjs/common';
 import { CatsService } from './cats.service';
-import { ConfigService } from '@nestjs/config';
+import { CreateCatDto } from './dto/create-cat.dto';
+import { UpdateCatDto } from './dto/update-cat.dto';
+import { Cat } from './entities/cat.entity';
+import { PaginationDto } from '../common';
 
+/**
+ * 猫控制器 - 演示全局 ValidationPipe、HttpExceptionFilter 和 ClassSerializerInterceptor
+ */
 @Controller('cats')
 export class CatsController {
-  constructor(
-    private readonly catsService: CatsService,
-    private readonly configService: ConfigService,
-  ) {}
+  constructor(private readonly catsService: CatsService) {}
+
+  /**
+   * 获取所有猫
+   * 演示：响应转换拦截器和分页 DTO 验证
+   */
   @Get()
-  getCats(): string {
-    console.log(this.configService.get('DATABASE_USER'));
-    return this.catsService.getCats();
+  findAll(@Query() pagination: PaginationDto): Cat[] {
+    console.log('Pagination:', pagination);
+    return this.catsService.findAll();
+  }
+
+  /**
+   * 根据 ID 获取猫
+   * 演示：ParseIntPipe 和 HttpExceptionFilter（当猫不存在时）
+   */
+  @Get(':id')
+  findOne(@Param('id', ParseIntPipe) id: number): Cat {
+    return this.catsService.findOne(id);
+  }
+
+  /**
+   * 创建新猫
+   * 演示：ValidationPipe 验证 DTO，ClassSerializerInterceptor 隐藏 internalNotes
+   */
+  @Post()
+  create(@Body() createCatDto: CreateCatDto): Cat {
+    return this.catsService.create(createCatDto);
+  }
+
+  /**
+   * 更新猫信息
+   * 演示：组合使用 ParseIntPipe 和 ValidationPipe
+   */
+  @Patch(':id')
+  update(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() updateCatDto: UpdateCatDto,
+  ): Cat {
+    return this.catsService.update(id, updateCatDto);
+  }
+
+  /**
+   * 删除猫
+   * 演示：删除操作和异常处理
+   */
+  @Delete(':id')
+  remove(@Param('id', ParseIntPipe) id: number): { message: string } {
+    this.catsService.remove(id);
+    return { message: `Cat with ID ${id} has been removed` };
   }
 }
