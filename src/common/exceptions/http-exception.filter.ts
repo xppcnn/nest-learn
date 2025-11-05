@@ -8,6 +8,7 @@ import {
 } from '@nestjs/common';
 import { Request, Response } from 'express';
 import { v4 as uuidv4 } from 'uuid';
+import { BusinessException } from './business.exception';
 
 /**
  * 统一异常响应结构
@@ -37,31 +38,50 @@ export class HttpExceptionFilter implements ExceptionFilter {
     const traceId = (request.headers['x-trace-id'] as string) || uuidv4();
 
     let status: number;
-    let errorResponse: ErrorResponse;
+    let responseBody: any;
 
-    if (exception instanceof HttpException) {
+    // 处理业务异常 - HTTP 200 但业务 code 不为 200
+    if (exception instanceof BusinessException) {
+      status = HttpStatus.OK; // HTTP 状态码为 200
+      const exceptionResponse = exception.getResponse() as {
+        code: number;
+        message: string;
+        data: any;
+      };
+
+      responseBody = {
+        data: exceptionResponse.data,
+        code: exceptionResponse.code,
+        message: exceptionResponse.message,
+      };
+
+      // 记录业务异常日志
+      this.logger.warn(
+        `[Business Exception] [${request.method}] ${request.url} - Code: ${exceptionResponse.code} - Message: ${exceptionResponse.message} - TraceId: ${traceId}`,
+      );
+    } else if (exception instanceof HttpException) {
       // 处理 NestJS 的 HttpException
       status = exception.getStatus();
       const exceptionResponse = exception.getResponse();
 
       if (typeof exceptionResponse === 'object') {
-        const response = exceptionResponse as {
+        const resp = exceptionResponse as {
           error?: string;
           message?: string | string[];
           details?: unknown;
         };
-        errorResponse = {
-          code: response.error || HttpStatus[status],
-          message: Array.isArray(response.message)
-            ? response.message.join(', ')
-            : response.message || exception.message,
-          details: response.details,
+        responseBody = {
+          code: resp.error || HttpStatus[status],
+          message: Array.isArray(resp.message)
+            ? resp.message.join(', ')
+            : resp.message || exception.message,
+          details: resp.details,
           traceId,
           timestamp: new Date().toISOString(),
           path: request.url,
         };
       } else {
-        errorResponse = {
+        responseBody = {
           code: HttpStatus[status],
           message: String(exceptionResponse),
           traceId,
@@ -69,6 +89,12 @@ export class HttpExceptionFilter implements ExceptionFilter {
           path: request.url,
         };
       }
+
+      // 记录 HTTP 异常日志
+      this.logger.error(
+        `[HTTP Exception] [${request.method}] ${request.url} - Status: ${status} - TraceId: ${traceId}`,
+        exception.stack,
+      );
     } else {
       // 处理未知异常
       status = HttpStatus.INTERNAL_SERVER_ERROR;
@@ -77,7 +103,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
           ? exception.message
           : 'Internal server error';
 
-      errorResponse = {
+      responseBody = {
         code: 'INTERNAL_SERVER_ERROR',
         message: 'An unexpected error occurred',
         details:
@@ -89,18 +115,12 @@ export class HttpExceptionFilter implements ExceptionFilter {
 
       // 记录未知异常的详细信息
       this.logger.error(
-        `Unhandled exception: ${errorMessage}`,
+        `[Unknown Exception] ${errorMessage}`,
         exception instanceof Error ? exception.stack : '',
         `TraceId: ${traceId}`,
       );
     }
 
-    // 记录错误日志
-    this.logger.error(
-      `[${request.method}] ${request.url} - Status: ${status} - TraceId: ${traceId}`,
-      exception instanceof Error ? exception.stack : '',
-    );
-
-    response.status(status).json(errorResponse);
+    response.status(status).json(responseBody);
   }
 }

@@ -3,6 +3,7 @@ import { AppModule } from './app.module';
 import { ConfigService } from '@nestjs/config';
 import { ValidationPipe, ClassSerializerInterceptor } from '@nestjs/common';
 import { HttpExceptionFilter } from './common/exceptions/http-exception.filter';
+import { HttpStatusInterceptor } from './common/interceptors/http-status.interceptor';
 import { TransformInterceptor } from './common/interceptors/transform.interceptor';
 
 async function bootstrap() {
@@ -26,6 +27,9 @@ async function bootstrap() {
 
   // 全局序列化拦截器
   app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));
+
+  // 全局 HTTP 状态码拦截器（将 POST 的 201 改为 200）
+  app.useGlobalInterceptors(new HttpStatusInterceptor());
 
   // 全局响应转换拦截器（可选）
   app.useGlobalInterceptors(new TransformInterceptor());
