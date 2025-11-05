@@ -5,10 +5,13 @@ import { ValidationPipe, ClassSerializerInterceptor } from '@nestjs/common';
 import { HttpExceptionFilter } from './common/exceptions/http-exception.filter';
 import { HttpStatusInterceptor } from './common/interceptors/http-status.interceptor';
 import { TransformInterceptor } from './common/interceptors/transform.interceptor';
+import { Logger } from 'nestjs-pino';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule, { bufferLogs: true });
   const configService = app.get(ConfigService);
+  const logger = app.get(Logger);
+  app.useLogger(logger);
 
   // 全局验证管道
   app.useGlobalPipes(
@@ -22,8 +25,8 @@ async function bootstrap() {
     }),
   );
 
-  // 全局异常过滤器
-  app.useGlobalFilters(new HttpExceptionFilter());
+  // 全局异常过滤器（注入 Logger）
+  app.useGlobalFilters(new HttpExceptionFilter(logger));
 
   // 全局序列化拦截器
   app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));
@@ -41,6 +44,7 @@ async function bootstrap() {
 
   const port = configService.get<number>('PORT') ?? 8866;
   await app.listen(port);
+  logger.log(`📝 Environment: ${process.env.NODE_ENV || 'development'}`);
 }
 
 void bootstrap();

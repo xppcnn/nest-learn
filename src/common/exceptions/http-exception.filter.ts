@@ -4,10 +4,11 @@ import {
   ArgumentsHost,
   HttpException,
   HttpStatus,
-  Logger,
+  Inject,
 } from '@nestjs/common';
 import { Request, Response } from 'express';
 import { v4 as uuidv4 } from 'uuid';
+import { Logger } from 'nestjs-pino';
 import { BusinessException } from './business.exception';
 
 /**
@@ -28,7 +29,7 @@ export interface ErrorResponse {
  */
 @Catch()
 export class HttpExceptionFilter implements ExceptionFilter {
-  private readonly logger = new Logger(HttpExceptionFilter.name);
+  constructor(@Inject(Logger) private readonly logger: Logger) {}
 
   catch(exception: unknown, host: ArgumentsHost) {
     const ctx = host.switchToHttp();
