@@ -4,28 +4,32 @@ import { CreateCatDto } from './dto/create-cat.dto';
 import { UpdateCatDto } from './dto/update-cat.dto';
 import { Cat } from './entities/cat.entity';
 import { BusinessException, BusinessExceptions } from '../common';
+import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
 export class CatsService {
-  private cats: Cat[] = [];
-  private idCounter = 1;
-
-  constructor(private readonly logger: Logger) {}
+  constructor(
+    private readonly logger: Logger,
+    private readonly prisma: PrismaService,
+  ) {}
 
   /**
    * 获取所有猫
    */
-  findAll(): Cat[] {
+  async findAll(): Promise<Cat[]> {
     this.logger.log('Finding all cats');
-    return this.cats.map((cat) => new Cat(cat));
+    const cats = await this.prisma.cat.findMany();
+    return cats.map((cat) => new Cat(cat));
   }
 
   /**
    * 根据 ID 获取猫
    */
-  findOne(id: number): Cat {
+  async findOne(id: number): Promise<Cat> {
     this.logger.log({ id }, 'Finding cat by ID');
-    const cat = this.cats.find((c) => c.id === id);
+    const cat = await this.prisma.cat.findUnique({
+      where: { id },
+    });
     if (!cat) {
       this.logger.warn({ id }, 'Cat not found');
       throw BusinessExceptions.notFound(`Cat with ID ${id} not found`);
@@ -36,11 +40,13 @@ export class CatsService {
   /**
    * 创建新猫
    */
-  create(createCatDto: CreateCatDto): Cat {
+  async create(createCatDto: CreateCatDto): Promise<Cat> {
     this.logger.log({ createCatDto }, 'Creating new cat');
 
     // 业务校验示例：检查名字是否已存在
-    const existingCat = this.cats.find((c) => c.name === createCatDto.name);
+    const existingCat = await this.prisma.cat.findFirst({
+      where: { name: createCatDto.name },
+    });
     if (existingCat) {
       this.logger.warn({ name: createCatDto.name }, 'Cat name already exists');
       // 抛出业务异常：HTTP 200，但 code 为 400
@@ -59,54 +65,61 @@ export class CatsService {
       });
     }
 
-    const cat = new Cat({
-      id: this.idCounter++,
-      ...createCatDto,
-      internalNotes: 'This is internal data',
-      createdAt: new Date(),
-      updatedAt: new Date(),
+    const cat = await this.prisma.cat.create({
+      data: {
+        ...createCatDto,
+        internalNotes: 'This is internal data',
+      },
     });
-    this.cats.push(cat);
 
     this.logger.log({ catId: cat.id, name: cat.name }, 'Cat created');
-    return cat;
+    return new Cat(cat);
   }
 
   /**
    * 更新猫信息
    */
-  update(id: number, updateCatDto: UpdateCatDto): Cat {
-    const catIndex = this.cats.findIndex((c) => c.id === id);
-    if (catIndex === -1) {
+  async update(id: number, updateCatDto: UpdateCatDto): Promise<Cat> {
+    const existingCat = await this.prisma.cat.findUnique({
+      where: { id },
+    });
+
+    if (!existingCat) {
       throw new NotFoundException({
         code: 'CAT_NOT_FOUND',
         message: `Cat with ID ${id} not found`,
       });
     }
 
-    this.cats[catIndex] = {
-      ...this.cats[catIndex],
-      ...updateCatDto,
-      updatedAt: new Date(),
-    };
+    const updatedCat = await this.prisma.cat.update({
+      where: { id },
+      data: updateCatDto,
+    });
 
-    return new Cat(this.cats[catIndex]);
+    return new Cat(updatedCat);
   }
 
   /**
    * 删除猫
    */
-  remove(id: number): void {
+  async remove(id: number): Promise<void> {
     this.logger.log({ id }, 'Deleting cat');
-    const catIndex = this.cats.findIndex((c) => c.id === id);
-    if (catIndex === -1) {
+    const existingCat = await this.prisma.cat.findUnique({
+      where: { id },
+    });
+
+    if (!existingCat) {
       this.logger.warn({ id }, 'Cat not found for deletion');
       throw new NotFoundException({
         code: 'CAT_NOT_FOUND',
         message: `Cat with ID ${id} not found`,
       });
     }
-    this.cats.splice(catIndex, 1);
+
+    await this.prisma.cat.delete({
+      where: { id },
+    });
+
     this.logger.log({ id }, 'Cat deleted');
   }
 }

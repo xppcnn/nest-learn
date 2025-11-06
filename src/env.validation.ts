@@ -5,8 +5,9 @@ import { z } from 'zod';
  */
 const environmentSchema = z.object({
   PORT: z.string().min(1, 'PORT is required'),
-  DATABASE_USER: z.string().min(1, 'DATABASE_USER is required'),
-  DATABASE_PASSWORD: z.string().min(1, 'DATABASE_PASSWORD is required'),
+  DATABASE_URL: z.string().min(1, 'DATABASE_URL is required'),
+  DATABASE_USER: z.string().min(1, 'DATABASE_USER is required').optional(),
+  DATABASE_PASSWORD: z.string().min(1, 'DATABASE_PASSWORD is required').optional(),
 });
 
 export type EnvironmentVariables = z.infer<typeof environmentSchema>;

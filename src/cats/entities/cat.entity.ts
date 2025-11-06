@@ -7,10 +7,10 @@ export class Cat {
   name: string;
   age: number;
   breed: string;
-  description?: string;
+  description?: string | null;
 
   // 内部使用字段 - 可以在返回前手动删除，或使用 ClassSerializerInterceptor + @Exclude 装饰器
-  internalNotes?: string;
+  internalNotes?: string | null;
 
   createdAt: Date;
   updatedAt: Date;

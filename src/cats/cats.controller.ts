@@ -31,9 +31,9 @@ export class CatsController {
    * 演示：响应转换拦截器和分页 DTO 验证
    */
   @Get()
-  findAll(
+  async findAll(
     @Query(new ZodValidationPipe(paginationSchema)) pagination: PaginationDto,
-  ): Cat[] {
+  ): Promise<Cat[]> {
     console.log('Pagination:', pagination);
     return this.catsService.findAll();
   }
@@ -43,7 +43,7 @@ export class CatsController {
    * 演示：ParseIntPipe 和 HttpExceptionFilter（当猫不存在时）
    */
   @Get(':id')
-  findOne(@Param('id', ParseIntPipe) id: number): Cat {
+  async findOne(@Param('id', ParseIntPipe) id: number): Promise<Cat> {
     return this.catsService.findOne(id);
   }
 
@@ -52,9 +52,9 @@ export class CatsController {
    * 演示：Zod 验证 DTO，ClassSerializerInterceptor 隐藏 internalNotes
    */
   @Post()
-  create(
+  async create(
     @Body(new ZodValidationPipe(createCatSchema)) createCatDto: CreateCatDto,
-  ): Cat {
+  ): Promise<Cat> {
     return this.catsService.create(createCatDto);
   }
 
@@ -63,10 +63,10 @@ export class CatsController {
    * 演示：组合使用 ParseIntPipe 和 Zod ValidationPipe
    */
   @Patch(':id')
-  update(
+  async update(
     @Param('id', ParseIntPipe) id: number,
     @Body(new ZodValidationPipe(updateCatSchema)) updateCatDto: UpdateCatDto,
-  ): Cat {
+  ): Promise<Cat> {
     return this.catsService.update(id, updateCatDto);
   }
 
@@ -75,8 +75,8 @@ export class CatsController {
    * 演示：删除操作和异常处理
    */
   @Delete(':id')
-  remove(@Param('id', ParseIntPipe) id: number): { message: string } {
-    this.catsService.remove(id);
+  async remove(@Param('id', ParseIntPipe) id: number): Promise<{ message: string }> {
+    await this.catsService.remove(id);
     return { message: `Cat with ID ${id} has been removed` };
   }
 }
