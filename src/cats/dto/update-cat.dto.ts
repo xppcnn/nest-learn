@@ -1,7 +1,9 @@
-import { PartialType } from '@nestjs/mapped-types';
-import { CreateCatDto } from './create-cat.dto';
+import { z } from 'zod';
+import { createCatSchema } from './create-cat.dto';
 
 /**
- * 更新猫的 DTO - 继承 CreateCatDto 并使所有字段可选
+ * 更新猫的 DTO - 使 CreateCatDto 的所有字段可选
  */
-export class UpdateCatDto extends PartialType(CreateCatDto) {}
+export const updateCatSchema = createCatSchema.partial();
+
+export type UpdateCatDto = z.infer<typeof updateCatSchema>;

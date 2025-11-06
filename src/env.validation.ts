@@ -1,29 +1,29 @@
-import { plainToInstance } from 'class-transformer';
-import { IsNotEmpty, IsString, validateSync } from 'class-validator';
+import { z } from 'zod';
 
-class EnvironmentVariables {
-  @IsString()
-  @IsNotEmpty()
-  PORT: string;
+/**
+ * 环境变量验证 Schema - 使用 Zod
+ */
+const environmentSchema = z.object({
+  PORT: z.string().min(1, 'PORT is required'),
+  DATABASE_USER: z.string().min(1, 'DATABASE_USER is required'),
+  DATABASE_PASSWORD: z.string().min(1, 'DATABASE_PASSWORD is required'),
+});
 
-  @IsString()
-  @IsNotEmpty()
-  DATABASE_USER: string;
+export type EnvironmentVariables = z.infer<typeof environmentSchema>;
 
-  @IsString()
-  @IsNotEmpty()
-  DATABASE_PASSWORD: string;
-}
 export function validateEnv(config: Record<string, unknown>) {
-  const validatedConfig = plainToInstance(EnvironmentVariables, config, {
-    enableImplicitConversion: true,
-  });
-
-  const errors = validateSync(validatedConfig, {
-    skipMissingProperties: false,
-  });
-  if (errors.length > 0) {
-    throw new Error(errors.toString());
+  try {
+    const validatedConfig = environmentSchema.parse(config);
+    return validatedConfig;
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      const formattedErrors = error.issues.map(
+        (err) => `${err.path.join('.')}: ${err.message}`,
+      );
+      throw new Error(
+        `Environment validation failed:\n${formattedErrors.join('\n')}`,
+      );
+    }
+    throw error;
   }
-  return validatedConfig;
 }

@@ -10,10 +10,14 @@ import {
   Query,
 } from '@nestjs/common';
 import { CatsService } from './cats.service';
-import { CreateCatDto } from './dto/create-cat.dto';
-import { UpdateCatDto } from './dto/update-cat.dto';
+import type { CreateCatDto } from './dto/create-cat.dto';
+import { createCatSchema } from './dto/create-cat.dto';
+import type { UpdateCatDto } from './dto/update-cat.dto';
+import { updateCatSchema } from './dto/update-cat.dto';
 import { Cat } from './entities/cat.entity';
-import { PaginationDto } from '../common';
+import type { PaginationDto } from '../common';
+import { paginationSchema } from '../common';
+import { ZodValidationPipe } from '../common/pipes/zod-validation.pipe';
 
 /**
  * 猫控制器 - 演示全局 ValidationPipe、HttpExceptionFilter 和 ClassSerializerInterceptor
@@ -27,7 +31,9 @@ export class CatsController {
    * 演示：响应转换拦截器和分页 DTO 验证
    */
   @Get()
-  findAll(@Query() pagination: PaginationDto): Cat[] {
+  findAll(
+    @Query(new ZodValidationPipe(paginationSchema)) pagination: PaginationDto,
+  ): Cat[] {
     console.log('Pagination:', pagination);
     return this.catsService.findAll();
   }
@@ -43,21 +49,23 @@ export class CatsController {
 
   /**
    * 创建新猫
-   * 演示：ValidationPipe 验证 DTO，ClassSerializerInterceptor 隐藏 internalNotes
+   * 演示：Zod 验证 DTO，ClassSerializerInterceptor 隐藏 internalNotes
    */
   @Post()
-  create(@Body() createCatDto: CreateCatDto): Cat {
+  create(
+    @Body(new ZodValidationPipe(createCatSchema)) createCatDto: CreateCatDto,
+  ): Cat {
     return this.catsService.create(createCatDto);
   }
 
   /**
    * 更新猫信息
-   * 演示：组合使用 ParseIntPipe 和 ValidationPipe
+   * 演示：组合使用 ParseIntPipe 和 Zod ValidationPipe
    */
   @Patch(':id')
   update(
     @Param('id', ParseIntPipe) id: number,
-    @Body() updateCatDto: UpdateCatDto,
+    @Body(new ZodValidationPipe(updateCatSchema)) updateCatDto: UpdateCatDto,
   ): Cat {
     return this.catsService.update(id, updateCatDto);
   }

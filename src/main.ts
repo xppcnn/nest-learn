@@ -1,7 +1,7 @@
 import { NestFactory, Reflector } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ConfigService } from '@nestjs/config';
-import { ValidationPipe, ClassSerializerInterceptor } from '@nestjs/common';
+import { ClassSerializerInterceptor } from '@nestjs/common';
 import { HttpExceptionFilter } from './common/exceptions/http-exception.filter';
 import { HttpStatusInterceptor } from './common/interceptors/http-status.interceptor';
 import { TransformInterceptor } from './common/interceptors/transform.interceptor';
@@ -13,17 +13,8 @@ async function bootstrap() {
   const logger = app.get(Logger);
   app.useLogger(logger);
 
-  // 全局验证管道
-  app.useGlobalPipes(
-    new ValidationPipe({
-      transform: true, // 自动转换类型
-      whitelist: true, // 自动剥离未在 DTO 中定义的属性
-      forbidNonWhitelisted: true, // 如果有未定义的属性则抛出错误
-      transformOptions: {
-        enableImplicitConversion: true, // 启用隐式类型转换
-      },
-    }),
-  );
+  // 注意：现在使用 Zod 验证，通过在各个路由处理器上使用 ZodValidationPipe
+  // 不再需要全局 ValidationPipe
 
   // 全局异常过滤器（注入 Logger）
   app.useGlobalFilters(new HttpExceptionFilter(logger));

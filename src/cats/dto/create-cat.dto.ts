@@ -1,23 +1,17 @@
-import { IsString, IsInt, Min, Max, IsOptional } from 'class-validator';
-import { Type } from 'class-transformer';
+import { z } from 'zod';
 
 /**
- * 创建猫的 DTO - 演示 ValidationPipe 的使用
+ * 创建猫的 DTO - 使用 Zod 进行验证
  */
-export class CreateCatDto {
-  @IsString()
-  name: string;
+export const createCatSchema = z.object({
+  name: z.string().min(1, 'Name is required'),
+  age: z.coerce
+    .number()
+    .int()
+    .min(0, 'Age must be at least 0')
+    .max(30, 'Age must be at most 30'),
+  breed: z.string().min(1, 'Breed is required'),
+  description: z.string().optional(),
+});
 
-  @Type(() => Number)
-  @IsInt()
-  @Min(0)
-  @Max(30)
-  age: number;
-
-  @IsString()
-  breed: string;
-
-  @IsOptional()
-  @IsString()
-  description?: string;
-}
+export type CreateCatDto = z.infer<typeof createCatSchema>;
