@@ -3,7 +3,7 @@ import { Logger } from 'nestjs-pino';
 import { CreateCatDto } from './dto/create-cat.dto';
 import { UpdateCatDto } from './dto/update-cat.dto';
 import { Cat } from './entities/cat.entity';
-import { BusinessException, BusinessExceptions } from '../common';
+import { BusinessException, BusinessExceptions } from '@/common';
 import { PrismaService } from 'nestjs-prisma';
 import Redis from 'ioredis';
 import { InjectRedis } from '@nestjs-modules/ioredis';

@@ -13,7 +13,7 @@ import { CatsService } from './cats.service';
 import { CreateCatDto } from './dto/create-cat.dto';
 import { UpdateCatDto } from './dto/update-cat.dto';
 import { Cat } from './entities/cat.entity';
-import { PaginationDto } from '../common';
+import { PaginationDto } from '@/common/dto/pagination.dto';
 
 /**
  * 猫控制器 - 演示 ValidationPipe、HttpExceptionFilter 和 ClassSerializerInterceptor

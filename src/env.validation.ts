@@ -1,5 +1,10 @@
 import { plainToInstance } from 'class-transformer';
-import { IsNotEmpty, IsString, validateSync } from 'class-validator';
+import {
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  validateSync,
+} from 'class-validator';
 
 /**
  * 环境变量验证 - 使用 class-validator
@@ -24,6 +29,26 @@ class EnvironmentVariables {
   @IsNotEmpty()
   @IsString()
   REDIS_URL: string;
+
+  @IsNotEmpty()
+  @IsString()
+  OPENROUTER_API_KEY: string;
+
+  @IsNotEmpty()
+  @IsString()
+  AI_BASE_URL: string;
+
+  @IsString()
+  @IsNotEmpty()
+  OPENROUTER_MODEL: string;
+
+  @IsOptional()
+  @IsString()
+  OPENROUTER_REFERER: string;
+
+  @IsString()
+  @IsOptional()
+  OPENROUTER_APP_NAME: string;
 }
 
 export function validateEnv(config: Record<string, unknown>) {
