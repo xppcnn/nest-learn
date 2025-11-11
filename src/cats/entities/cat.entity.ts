@@ -1,6 +1,7 @@
+import { Exclude } from 'class-transformer';
+
 /**
- * 猫实体 - 可以继续使用 ClassSerializerInterceptor
- * 注意：如果需要排除字段，可以在服务层或使用自定义序列化逻辑
+ * 猫实体 - 使用 class-transformer 的 @Exclude 装饰器排除敏感字段
  */
 export class Cat {
   id: number;
@@ -9,7 +10,7 @@ export class Cat {
   breed: string;
   description?: string | null;
 
-  // 内部使用字段 - 可以在返回前手动删除，或使用 ClassSerializerInterceptor + @Exclude 装饰器
+  @Exclude()
   internalNotes?: string | null;
 
   createdAt: Date;

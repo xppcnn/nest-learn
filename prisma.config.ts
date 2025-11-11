@@ -1,4 +1,9 @@
 import { defineConfig, env } from "prisma/config";
+import * as dotenv from 'dotenv';
+
+// 加载环境变量
+dotenv.config({ path: '.env' });
+dotenv.config({ path: '.env.development' });
 
 export default defineConfig({
   schema: "prisma/schema.prisma",

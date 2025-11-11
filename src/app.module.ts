@@ -6,8 +6,7 @@ import { ConfigModule } from '@nestjs/config';
 import { CatsModule } from './cats/cats.module';
 import { validateEnv } from './env.validation';
 import { loggerSplitConfig } from './common/config/logger.config';
-import { PrismaModule } from './prisma/prisma.module';
-
+import { PrismaModule } from 'nestjs-prisma';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -16,7 +15,9 @@ import { PrismaModule } from './prisma/prisma.module';
       validate: validateEnv,
     }),
     LoggerModule.forRoot(loggerSplitConfig),
-    PrismaModule,
+    PrismaModule.forRoot({
+      isGlobal: true,
+    }),
     CatsModule,
   ],
   controllers: [AppController],

@@ -9,12 +9,9 @@ import { map } from 'rxjs/operators';
 import { ApiResponse } from '../response.class';
 
 /**
- * 统一成功响应结构
- */
-
-/**
  * 响应转换拦截器
- * 将所有成功响应包装成统一格式
+ * 功能：将所有成功响应包装成统一格式
+ * 注意：字段过滤由 ClassSerializerInterceptor 和 @Exclude 装饰器处理
  */
 @Injectable()
 export class TransformInterceptor<T>
@@ -26,11 +23,11 @@ export class TransformInterceptor<T>
   ): Observable<ApiResponse<T>> {
     return next.handle().pipe(
       map((data): ApiResponse<T> => {
-        // 如果响应已经是标准格式，直接返回
+        // 包装成统一响应格式
         if (data && typeof data === 'object' && 'data' in data) {
           return data as ApiResponse<T>;
         }
-        // 否则包装成标准格式
+
         return ApiResponse.success(data as T, 'success');
       }),
     );

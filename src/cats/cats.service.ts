@@ -4,7 +4,7 @@ import { CreateCatDto } from './dto/create-cat.dto';
 import { UpdateCatDto } from './dto/update-cat.dto';
 import { Cat } from './entities/cat.entity';
 import { BusinessException, BusinessExceptions } from '../common';
-import { PrismaService } from '../prisma/prisma.service';
+import { PrismaService } from 'nestjs-prisma';
 
 @Injectable()
 export class CatsService {
@@ -18,7 +18,9 @@ export class CatsService {
    */
   async findAll(): Promise<Cat[]> {
     this.logger.log('Finding all cats');
-    const cats = await this.prisma.cat.findMany();
+    const cats = await this.prisma.cat.findMany({
+      orderBy: { createdAt: 'desc' },
+    });
     return cats.map((cat) => new Cat(cat));
   }
 
@@ -68,7 +70,8 @@ export class CatsService {
     const cat = await this.prisma.cat.create({
       data: {
         ...createCatDto,
-        internalNotes: 'This is internal data',
+        internalNotes:
+          'This is internal data - should not be exposed to clients',
       },
     });
 

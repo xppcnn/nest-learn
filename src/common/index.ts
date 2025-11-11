@@ -11,6 +11,3 @@ export * from './decorators';
 
 // DTOs
 export * from './dto/pagination.dto';
-
-// Pipes
-export * from './pipes/zod-validation.pipe';

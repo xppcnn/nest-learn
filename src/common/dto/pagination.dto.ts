@@ -1,25 +1,23 @@
-import { z } from 'zod';
+import { IsOptional, IsInt, Min, Max } from 'class-validator';
+import { Type } from 'class-transformer';
 
 /**
- * 分页查询 DTO（基于页码）- 使用 Zod 进行验证
+ * 分页查询 DTO（基于页码）- 使用 class-validator 进行验证
  */
-export const paginationSchema = z.object({
-  page: z.coerce
-    .number()
-    .int()
-    .min(1, 'Page must be at least 1')
-    .default(1)
-    .optional(),
-  pageSize: z.coerce
-    .number()
-    .int()
-    .min(1, 'PageSize must be at least 1')
-    .max(100, 'PageSize must be at most 100')
-    .default(10)
-    .optional(),
-});
+export class PaginationDto {
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
+  page?: number = 1;
 
-export type PaginationDto = z.infer<typeof paginationSchema>;
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
+  @Max(100)
+  pageSize?: number = 10;
+}
 
 /**
  * 分页响应元数据
