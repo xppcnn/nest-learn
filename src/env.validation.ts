@@ -13,11 +13,17 @@ class EnvironmentVariables {
   @IsNotEmpty()
   DATABASE_URL: string;
 
+  @IsNotEmpty()
   @IsString()
-  DATABASE_USER?: string;
+  DATABASE_USER: string;
 
+  @IsNotEmpty()
   @IsString()
-  DATABASE_PASSWORD?: string;
+  DATABASE_PASSWORD: string;
+
+  @IsNotEmpty()
+  @IsString()
+  REDIS_URL: string;
 }
 
 export function validateEnv(config: Record<string, unknown>) {

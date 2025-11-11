@@ -5,12 +5,15 @@ import { UpdateCatDto } from './dto/update-cat.dto';
 import { Cat } from './entities/cat.entity';
 import { BusinessException, BusinessExceptions } from '../common';
 import { PrismaService } from 'nestjs-prisma';
+import Redis from 'ioredis';
+import { InjectRedis } from '@nestjs-modules/ioredis';
 
 @Injectable()
 export class CatsService {
   constructor(
     private readonly logger: Logger,
     private readonly prisma: PrismaService,
+    @InjectRedis() private readonly redis: Redis,
   ) {}
 
   /**
@@ -18,6 +21,7 @@ export class CatsService {
    */
   async findAll(): Promise<Cat[]> {
     this.logger.log('Finding all cats');
+    await this.redis.set('cats', JSON.stringify({ name: 'test' }));
     const cats = await this.prisma.cat.findMany({
       orderBy: { createdAt: 'desc' },
     });
