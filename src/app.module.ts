@@ -9,6 +9,8 @@ import { validateEnv } from './env.validation';
 import { loggerSplitConfig } from './common/config/logger.config';
 import { PrismaModule } from 'nestjs-prisma';
 import { RedisModule } from '@nestjs-modules/ioredis';
+import { AuthModule } from './modules/auth/auth.module';
+import { EmailModule } from './modules/email/email.module';
 
 @Module({
   imports: [
@@ -30,6 +32,8 @@ import { RedisModule } from '@nestjs-modules/ioredis';
     }),
     CatsModule,
     AiModule,
+    AuthModule,
+    EmailModule,
   ],
   controllers: [AppController],
   providers: [AppService],

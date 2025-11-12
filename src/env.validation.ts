@@ -49,6 +49,22 @@ class EnvironmentVariables {
   @IsString()
   @IsOptional()
   OPENROUTER_APP_NAME: string;
+
+  @IsString()
+  @IsNotEmpty()
+  NODEMAILER_HOST: string;
+
+  @IsString()
+  @IsNotEmpty()
+  NODEMAILER_PORT: string;
+
+  @IsString()
+  @IsNotEmpty()
+  NODEMAILER_AUTH_USER: string;
+
+  @IsString()
+  @IsNotEmpty()
+  NODEMAILER_AUTH_PASS: string;
 }
 
 export function validateEnv(config: Record<string, unknown>) {

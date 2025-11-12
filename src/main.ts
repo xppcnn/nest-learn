@@ -8,7 +8,11 @@ import { TransformInterceptor } from './common/interceptors/transform.intercepto
 import { Logger } from 'nestjs-pino';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule, { bufferLogs: true });
+  const app = await NestFactory.create(AppModule, {
+    bufferLogs: true,
+    cors: true,
+  });
+  app.setGlobalPrefix('api');
   const configService = app.get(ConfigService);
   const logger = app.get(Logger);
   app.useLogger(logger);
