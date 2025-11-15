@@ -25,6 +25,19 @@
 
 [Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
 
+## RBAC quickstart
+
+- 运行 `pnpm prisma:seed` 初始化角色、用户与示例数据。默认创建：
+  - `super-admin`：`admin@example.com / Admin@123`
+  - `user`：`demo@example.com / Demo@123`
+- 调用需要认证的接口时，暂时通过 `X-User-Id` 请求头注入用户身份（阶段一先用简单 header，后续会接入正式登录体系）。例如：
+
+```bash
+curl -H "X-User-Id: 1" http://localhost:8866/api/cats
+```
+
+- `super-admin` 可进行增删改查，`user` 仅能读取。
+
 ## Project setup
 
 ```bash

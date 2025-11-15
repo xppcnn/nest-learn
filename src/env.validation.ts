@@ -65,6 +65,10 @@ class EnvironmentVariables {
   @IsString()
   @IsNotEmpty()
   NODEMAILER_AUTH_PASS: string;
+
+  @IsString()
+  @IsNotEmpty()
+  JWT_SECRET: string;
 }
 
 export function validateEnv(config: Record<string, unknown>) {

@@ -11,6 +11,7 @@ import { PrismaModule } from 'nestjs-prisma';
 import { RedisModule } from '@nestjs-modules/ioredis';
 import { AuthModule } from './modules/auth/auth.module';
 import { EmailModule } from './modules/email/email.module';
+import { AuthorizationModule } from './modules/authorization/authorization.module';
 
 @Module({
   imports: [
@@ -33,6 +34,7 @@ import { EmailModule } from './modules/email/email.module';
     CatsModule,
     AiModule,
     AuthModule,
+    AuthorizationModule,
     EmailModule,
   ],
   controllers: [AppController],

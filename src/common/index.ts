@@ -9,5 +9,11 @@ export * from './interceptors/transform.interceptor';
 // Decorators
 export * from './decorators';
 
+// Guards
+export * from './guards';
+
 // DTOs
 export * from './dto/pagination.dto';
+
+// Interfaces
+export * from './interfaces/auth-user.interface';
