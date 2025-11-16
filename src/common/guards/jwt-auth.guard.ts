@@ -3,6 +3,8 @@ import { Reflector } from '@nestjs/core';
 import { AuthGuard } from '@nestjs/passport';
 import { IS_PUBLIC_KEY } from '@/common/decorators/public.decorator';
 import { Observable } from 'rxjs';
+import { ResponseCode } from '../response.class';
+import { BusinessException } from '../exceptions/business.exception';
 
 @Injectable()
 export class JwtAuthGuard extends AuthGuard('jwt') {
@@ -23,5 +25,12 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
     }
 
     return super.canActivate(context);
+  }
+
+  handleRequest<TUser = any>(err, user: TUser) {
+    if (err || !user) {
+      throw new BusinessException(ResponseCode.UNAUTHORIZED, '无效的 token');
+    }
+    return user;
   }
 }
